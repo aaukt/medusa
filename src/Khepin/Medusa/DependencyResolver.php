@@ -69,6 +69,12 @@ class DependencyResolver
 
             // obsolete
             'zendframework/zend-registry' => null,
+            
+            // some older phpdocumentor version require these
+            'zendframework/zend-translator' => null,
+            'zendframework/zend-locale' => null,
+            'phpdocumentor/template-installer' => null,
+            'pear-symfony/eventdispatcher' => null
         );
 
         if (array_key_exists($package, $packages)) {
