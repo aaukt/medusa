@@ -1,6 +1,7 @@
 {
-    "name": "khepin/medusa",
+    "name": "instaclick/medusa",
     "description": "A small set of command to maintain a mirror of git repositories and create a local satis repository for composer.",
+    "license": "MIT",
     "require": {
         "composer/satis": "dev-master",
         "guzzle/guzzle": "v2.8.1"
@@ -10,6 +11,11 @@
         {
             "name": "Sebastien Armand",
             "email": "khepin@gmail.com"
+        },
+        {
+            "name": "Anthon Pang",
+            "email": "apang@softwaredevelopment.ca",
+            "role": "Fork maintainer"
         }
     ],
     "autoload": {

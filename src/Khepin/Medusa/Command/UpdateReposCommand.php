@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright 2013 Sébastien Armand
+ * @license http://opensource.org/licenses/MIT MIT
+ */
+
 namespace Khepin\Medusa\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,14 +20,13 @@ class UpdateReposCommand extends Command
     {
         $this
             ->setName('update')
-            ->setDescription('Fetch last updates from each package')
+            ->setDescription('Fetch latest updates for each mirrored package')
             ->setDefinition(array(
-                new InputArgument('repos-dir', InputArgument::OPTIONAL, 'Location where to output built files', null),
+                new InputArgument('config', InputArgument::OPTIONAL, 'A config file', 'medusa.json')
             ))
             ->setHelp(<<<EOT
-The <info>mirror</info> command reads the given composer.lock file and mirrors
-each git repository so they can be used locally.
-<warning>This will only work for repos hosted on github.</warning>
+The <info>update</info> command reads the given medusa.json file and updates
+each mirrored git repository.
 EOT
             )
         ;
@@ -34,16 +38,31 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dir = $input->getArgument('repos-dir');
+        $config = json_decode(file_get_contents($input->getArgument('config')));
+        $dir = $config->repodir;
         $repos = glob($dir.'/*/*.git');
-        $cmd = 'cd %s && git fetch';
-        foreach($repos as $repo){
+
+        $fetchCmd = 'cd %s && git fetch';
+        $updateCmd = 'cd %s && git update-server-info -f';
+
+        foreach ($repos as $repo) {
             $output->writeln(' - Fetching latest changes in <info>'.$repo.'</info>');
-            $process = new Process(sprintf($cmd, $repo));
+            $process = new Process(sprintf($fetchCmd, $repo));
             $process->setTimeout(300)->run();
+
             if (!$process->isSuccessful()) {
                 throw new \Exception($process->getErrorOutput());
             }
+
+            $output->writeln($process->getOutput());
+
+            $process = new Process(sprintf($updateCmd, $repo));
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                throw new \Exception($process->getErrorOutput());
+            }
+
             $output->writeln($process->getOutput());
         }
     }

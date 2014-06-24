@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright 2013 Sébastien Armand
+ * @license http://opensource.org/licenses/MIT MIT
+ */
+
 namespace Khepin\Medusa;
 
 use Symfony\Component\Finder\Finder;
@@ -13,7 +18,6 @@ class Compiler
 
         $phar = new \Phar($pharFile, 0, 'medusa.phar');
         $phar->setSignatureAlgorithm(\Phar::SHA1);
-
         $phar->startBuffering();
 
         $finders = array();
@@ -31,11 +35,7 @@ class Compiler
         $finder->files()
             ->ignoreVCS(true)
             ->name('*.php')
-            ->in([
-                __DIR__.'/../../../vendor/symfony/symfony/src/Symfony/Component/Console',
-                __DIR__.'/../../../vendor/symfony/symfony/src/Symfony/Component/EventDispatcher',
-                __DIR__.'/../../../vendor/symfony/symfony/src/Symfony/Component/Process',
-            ])
+            ->in(__DIR__.'/../../../vendor/symfony')
         ;
         $finders[] = $finder;
 
@@ -68,6 +68,30 @@ class Compiler
         $finder->files()
             ->ignoreVCS(true)
             ->name('*.php')
+            ->in(__DIR__.'/../../../vendor/seld')
+        ;
+        $finders[] = $finder;
+
+        $finder = new Finder();
+        $finder->files()
+            ->ignoreVCS(true)
+            ->name('*.php')
+            ->in(__DIR__.'/../../../vendor/justinrainbow')
+        ;
+        $finders[] = $finder;
+
+        $finder = new Finder();
+        $finder->files()
+            ->ignoreVCS(true)
+            ->name('*.php')
+            ->in(__DIR__.'/../../../vendor/twig')
+        ;
+        $finders[] = $finder;
+
+        $finder = new Finder();
+        $finder->files()
+            ->ignoreVCS(true)
+            ->name('*.php')
             ->in(__DIR__.'/../../../vendor/composer/composer/src/Composer/Json')
         ;
         $finders[] = $finder;
@@ -82,10 +106,7 @@ class Compiler
 
         // Stubs
         $phar->setStub($this->getStub());
-
         $phar->stopBuffering();
-
-        $phar->compressFiles(\Phar::GZ);
 
         unset($phar);
     }
@@ -95,6 +116,7 @@ class Compiler
         $path = str_replace(dirname(dirname(dirname(__DIR__))).DIRECTORY_SEPARATOR, '', $file->getRealPath());
 
         $content = file_get_contents($file);
+
         if ($strip) {
             $content = $this->stripWhitespace($content);
         } elseif ('LICENSE' === basename($file)) {
@@ -108,6 +130,7 @@ class Compiler
     {
         $content = file_get_contents(__DIR__.'/../../../bin/medusa');
         $content = preg_replace('{^#!/usr/bin/env php\s*}', '', $content);
+
         $phar->addFromString('bin/medusa', $content);
     }
 
@@ -118,6 +141,7 @@ class Compiler
         }
 
         $output = '';
+
         foreach (token_get_all($source) as $token) {
             if (is_string($token)) {
                 $output .= $token;

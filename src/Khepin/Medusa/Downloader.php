@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright 2013 Sébastien Armand
+ * @license http://opensource.org/licenses/MIT MIT
+ */
+
 namespace Khepin\Medusa;
 
 use Symfony\Component\Process\Process;
@@ -12,19 +17,42 @@ class Downloader
     public function __construct($package, $url)
     {
         $this->package = $package;
-        $this->url = $url;
+        $this->url = preg_replace('~^git@github.com:~', 'git://github.com/', $url);
     }
 
     public function download($in_dir)
     {
-        $cmd = 'git clone --mirror %s %s';
-        $dir = $in_dir.'/'.$this->package.'.git';
-        if(is_dir($dir)){
+        $repo = $in_dir . '/' . $this->package . ".git";
+
+        if (is_dir($repo)) {
             return;
         }
-        $process = new Process(sprintf($cmd, $this->url, $dir));
+
+        $cmd = 'git clone --mirror %s %s';
+
+        $process = new Process(sprintf($cmd, $this->url, $repo));
         $process->setTimeout(3600);
         $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new \Exception($process->getErrorOutput());
+        }
+
+        $cmd = 'cd %s && git update-server-info -f';
+
+        $process = new Process(sprintf($cmd, $repo));
+        $process->setTimeout(3600);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new \Exception($process->getErrorOutput());
+        }
+
+        $cmd = 'cd %s && git fsck';
+        $process = new Process(sprintf($cmd, $repo));
+        $process->setTimeout(3600);
+        $process->run();
+
         if (!$process->isSuccessful()) {
             throw new \Exception($process->getErrorOutput());
         }

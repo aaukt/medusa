@@ -1,7 +1,10 @@
 {
+    "repositories": [
+    ],
     "require": [
         "guzzle/guzzle"
     ],
-    "repodir": "repos",
-    "satisconfig": "config.json"
+    "repodir": "web/repositories",
+    "satisurl": "http://user:password@satis.host:port/repositories",
+    "satisconfig": "satis.json"
 }
