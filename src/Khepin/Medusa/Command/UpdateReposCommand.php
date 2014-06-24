@@ -57,7 +57,7 @@ EOT
             $output->writeln($process->getOutput());
 
             $process = new Process(sprintf($updateCmd, $repo));
-            $process->run();
+            $process->setTimeout(600)->run();
 
             if (!$process->isSuccessful()) {
                 throw new \Exception($process->getErrorOutput());
