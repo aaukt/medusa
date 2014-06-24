@@ -1,8 +1,6 @@
 #!/usr/bin/env php
 <?php
-namespace Khepin\Medusa\Console;
-
-include __DIR__.'/../vendor/autoload.php';
+require __DIR__ . '/../src/bootstrap.php';
 
 use Symfony\Component\Console\Application;
 use Khepin\Medusa\Command\AddRepoCommand;
