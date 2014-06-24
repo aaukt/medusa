@@ -14,5 +14,6 @@
     ],
     "autoload": {
         "psr-0": {"Khepin": "src"}
-    }
+    },
+    "bin": ["bin/medusa"],
 }
