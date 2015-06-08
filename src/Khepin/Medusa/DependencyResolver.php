@@ -34,7 +34,11 @@ class DependencyResolver
                 continue;
             }
 
-            $response = $guzzle->get('/packages/'.$package.'.json')->send()->getBody(true);
+            try {
+                $response = $guzzle->get('/packages/'.$package.'.json')->send()->getBody(true);
+            } catch (\Exception $e) {
+                continue;
+            }
             $package = json_decode($response);
 
             if (!is_null($package)) {
